@@ -50,11 +50,27 @@ fn second_solution(s: &str) -> i32 {
     .sum()
 }
 
+fn third_solution(s: &str) -> i32 {
+  let mut i = 0;
+  let letters: HashMap<char, i32> = HashMap::from_iter(
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().map(|letter| {
+      i += 1;
+      (letter, i)
+    })
+  );
+  s.lines()
+    .map(|line| line.split_at(line.len() / 2))
+    .flat_map(|(left, right)| left.chars().find(|lc| right.chars().any(|rc| lc == &rc)))
+    .flat_map(|letter| letters.get(&letter))
+    .sum()
+}
+
 fn main() -> color_eyre::Result<()> {
   color_eyre::install()?;
 
   test("first_solution", first_solution);
   test("second_solution", second_solution);
+  test("third_solution", third_solution);
 
   Ok(())
 }
