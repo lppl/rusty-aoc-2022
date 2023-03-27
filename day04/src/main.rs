@@ -37,17 +37,20 @@ impl FromStr for Line {
   type Err = color_eyre::Report;
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
-    let (ll, lr, rl, rr) = s
-      .split(&[',', '-'][..])
-      .map(|num| num.parse::<usize>())
-      .filter_map(|opt| opt.ok())
-      .collect_tuple::<(usize, usize, usize, usize)>()
+    let (left, right) = s
+      .split(',')
+      .map(|s| {
+        let (start, end) = s
+          .split('-')
+          .map(|s| s.parse().expect("range start/end should be u32"))
+          .collect_tuple::<(usize, usize)>()
+          .expect("something");
+        start..=end
+      })
+      .collect_tuple::<(RangeInclusive<usize>, RangeInclusive<usize>)>()
       .expect("Incorrect line format");
 
-    Ok(Line {
-      left: ll..=lr,
-      right: rl..=rr,
-    })
+    Ok(Line { left, right })
   }
 }
 
