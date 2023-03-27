@@ -7,6 +7,20 @@ fn main() {
   println!("Found {} contained ranges.", count(include_str!("./input.txt")))
 }
 
+pub trait RangeInclusiveExt {
+  fn contains_range(&self, other: &Self) -> bool;
+
+  fn contains_or_is_contained(&self, other: &Self) -> bool {
+    self.contains_range(&other) || other.contains_range(&self)
+  }
+}
+
+impl<T> RangeInclusiveExt for RangeInclusive<T> where T: PartialOrd {
+  fn contains_range(&self, other: &Self) -> bool {
+    self.contains(other.start()) && self.contains(other.end())
+  }
+}
+
 #[derive(Debug)]
 struct Line {
   left: RangeInclusive<usize>,
@@ -14,9 +28,8 @@ struct Line {
 }
 
 impl Line {
-  fn contains(&self) -> bool {
-    (self.left.contains(self.right.start()) && self.left.contains(self.right.end())) ||
-      (self.right.contains(self.left.start()) && self.right.contains(self.left.end()))
+  fn have_contained_ranges(&self) -> bool {
+    self.left.contains_or_is_contained(&self.right)
   }
 }
 
@@ -45,7 +58,7 @@ fn count(s: &str) -> usize {
   s.lines()
     .map(|str_line| Line::from_str(str_line))
     .filter_map(|line| line.ok())
-    .filter(|line| line.contains())
+    .filter(|line| line.have_contained_ranges())
     .count()
 }
 
