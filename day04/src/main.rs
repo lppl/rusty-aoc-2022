@@ -1,7 +1,7 @@
 use std::ops::RangeInclusive;
 use std::str::FromStr;
 
-use color_eyre::eyre::eyre;
+use itertools::Itertools;
 
 fn main() {
   println!("Found {} contained ranges.", count(include_str!("./input.txt")))
@@ -37,20 +37,17 @@ impl FromStr for Line {
   type Err = color_eyre::Report;
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
-    let result = s
+    let (ll, lr, rl, rr) = s
       .split(&[',', '-'][..])
       .map(|num| num.parse::<usize>())
       .filter_map(|opt| opt.ok())
-      .collect::<Vec<_>>();
+      .collect_tuple::<(usize, usize, usize, usize)>()
+      .expect("Incorrect line format");
 
-    if result.len() == 4 {
-      Ok(Line {
-        left: result[0]..=result[1],
-        right: result[2]..=result[3],
-      })
-    } else {
-      Err(eyre!("Line is incorrect"))
-    }
+    Ok(Line {
+      left: ll..=lr,
+      right: rl..=rr,
+    })
   }
 }
 
