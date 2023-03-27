@@ -57,8 +57,7 @@ impl FromStr for Line {
 fn count(s: &str) -> usize {
   s.lines()
     .map(|str_line| Line::from_str(str_line))
-    .filter_map(|line| line.ok())
-    .filter(|line| line.have_contained_ranges())
+    .filter_ok(|line| line.have_contained_ranges())
     .count()
 }
 
